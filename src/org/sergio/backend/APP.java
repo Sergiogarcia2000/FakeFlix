@@ -1,6 +1,5 @@
 package org.sergio.backend;
 
-import org.sergio.elements.Element;
 import org.sergio.elements.Movie;
 import org.sergio.elements.Serie;
 import org.sergio.users.Employee;
@@ -248,13 +247,12 @@ public class APP {
             System.out.println("2. Nombre");
             System.out.println("3. Director");
             System.out.println("4. Fecha");
-            System.out.println("5. Valoración media");
-            System.out.println("6. Copias");
+            System.out.println("5. Copias");
 
             do {
                 System.out.print(">>> ");
                 opc = sc.nextInt();
-            }while (opc <= 0 || opc >= 7);
+            }while (opc <= 0 || opc >= 6);
 
             System.out.println("Formato: ");
             System.out.println("1. Ascendente");
@@ -338,7 +336,7 @@ public class APP {
 
 
         }catch (InputMismatchException e ){
-            System.out.println("Algo fue mal");
+            System.out.println("Entrada inválida.");
         }
     }
 
@@ -456,7 +454,6 @@ public class APP {
 
             if (confirm(cod)){
                 ElementsDataBase.substract(cod);
-                System.out.println("Se ha prestado exitosamente.");
             }else {
                 System.out.println("Has introducido no o una opción inválida");
             }
@@ -560,7 +557,7 @@ public class APP {
             if (line.length > 1){
                 for (String l : line) {
                     if (l.equalsIgnoreCase(key)) {
-                        System.out.println(ElementsDataBase.searchElement(line[0]).replace("-", " | ") + " | " + String.format("%.2f",Double.parseDouble(line[8]) / Double.parseDouble(line[7])));
+                        System.out.println(ElementsDataBase.searchElement(line[0]).replace("-", " | ") + " | " + ElementsDataBase.getValoration(line[0]));
                         found = true;
                     }
                 }

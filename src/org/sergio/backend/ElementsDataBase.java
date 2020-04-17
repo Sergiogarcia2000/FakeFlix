@@ -239,6 +239,7 @@ public class ElementsDataBase {
                                 line[4] = Integer.toString(Integer.parseInt(line[4]) - 1);
 
                                 fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
+                                System.out.println("El producto se ha alquilado existosamente.");
                             }else{
                                 System.out.println("El producto no está en stock");
                             }
