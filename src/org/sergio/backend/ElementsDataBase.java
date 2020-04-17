@@ -11,8 +11,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
+/**
+ * @author SERGIO GARCÍA MAYO
+ * ESTA CLASE REALIZA PRÁCTICAMENTE LOS MISMOS ALGORITMOS QUE LAS OTRAS CLASES QUE GESTIONAN LOS DATOS
+ */
 public class ElementsDataBase {
 
     // ENCONTRAR RUTA DEL DIRECTORIO DOCUMENTOS DEL USUARIO
@@ -26,8 +29,6 @@ public class ElementsDataBase {
     private static String dataPath = documentsDirectory + "\\FakeFlix\\" + elementsData;
 
     private static ArrayList<String> elements = new ArrayList<>();
-
-    private static Scanner sc = new Scanner(System.in);
 
     private static BufferedReader reader;
 
@@ -50,7 +51,12 @@ public class ElementsDataBase {
     }
 
     /**
-     * GUARDA INFORMACIÓN DE UN ELEMENTO
+     * GUARDA INFORMACIÓN DE UNA PELÍCULA
+     * UTILIZO UN MÉTODO DE LA CLASE FILES EL CUAL GUARDA DENTRO DE CADA POSICION DE UNA LISTA EN FORMATO ARRAYLIST CADA LINEA DE UN FICHERO
+     * CADA VEZ QUE GUARDO UN ELEMENTO HAGO UN SALTO DE LÍNEA Y AÑADO UN PUNTO, AUNQUE ESTO QUEDE MUY FEO MÁS TARDE ME RESUELVE MUCHOS PROBLEMAS PARA ELMINIAR ELEMENTOS...
+     * LA PRIMERA VEZ QUE SE GUARDAA UN CONTACTO DETECTA QUE EL FICHERO ESTÁ VACÍO LO UNICO QUE HACE ES AÑADIR UNA NUEVA LINEA A LA LISTA VACÍA
+     * EL RESTO DE VECES QUE SE GUARDA DETECTA DONDE ESTÁ EL PRIMER PUNTO DISPONIBLE Y LO SOBREESCRIBE
+     * @param movie EL OBJETO QUE VOY A UTILIZAR AUNQUE REALMENTE NO ES NECESARIO CREAR UN USUARIO PARA ESTO
      */
     public static void saveMovieData(Movie movie){
 
@@ -70,165 +76,69 @@ public class ElementsDataBase {
             }
         }
 
-
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataPath, true));
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-            if (fileContent.size() == 0) {
-                writer.append(Integer.toString(getLastElementNumber()));
-                writer.append('-');
-                writer.append(movie.getName());
-                writer.append('-');
-                writer.append(movie.getDirector());
-                writer.append('-');
-                writer.append(Integer.toString(movie.getDate()));
-                writer.append('-');
-                writer.append(Integer.toString(movie.getCopies()));
-                writer.append('-');
-                writer.append(movie.getType());
-                writer.append('-');
-                writer.append(Integer.toString(movie.getCopies()));
-                writer.append('-');
-                writer.append('0');
-                writer.append('-');
-                writer.append('0');
-                writer.append('-');
-                writer.append(category);
-                writer.append('-');
-                writer.append(subcategory);
-                writer.append('\n');
-                writer.append('.');
-                writer.close();
-                System.out.println("Elemento guardado exitosamente.");
-                return;
-            }
+            String newString = getLastElementNumber() + "-" + movie.getName() + "-" + movie.getDirector() + "-" + movie.getDate() + "-" + movie.getCopies() +
+                               "-" + movie.getType() + "-"+ movie.getCopies() + "-0-0-" + "Disponible" + "-" + category + "-" + subcategory + "\n" + ".";
 
-            for (int i = 0; i < fileContent.size(); i++) {
-
-                try {
-                    String[] lineSplitted = fileContent.get(i).split("-");
-                    if (lineSplitted.length <= 1){
-                        String newString =
-                                        getLastElementNumber() +
-                                        "-" +
-                                        movie.getName() +
-                                        "-" +
-                                        movie.getDirector() +
-                                        "-" +
-                                        movie.getDate() +
-                                        "-" +
-                                        movie.getCopies() +
-                                        "-" +
-                                        movie.getType() +
-                                        "-"+
-                                        movie.getCopies() +
-                                        "-" +
-                                        "0" +
-                                        "-" +
-                                        "0" +
-                                        "-" +
-                                        category +
-                                        "-" +
-                                        subcategory +
-                                        "\n" +
-                                        ".";
-                        fileContent.set(i, newString);
+            if (fileContent.isEmpty()){
+                fileContent.add(newString);
+                Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
+            }else{
+                for (int i = 0; i < fileContent.size(); i++){
+                    if (fileContent.get(i).length() <= 2){
+                        fileContent.set(i,newString);
                         Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
                         System.out.println("¡Elemento guardado exitosamente!");
                         return;
                     }
-
-                }catch(NumberFormatException | IOException a) {
-                    a.printStackTrace();
                 }
-
             }
-
         }catch (IOException exc){
             exc.printStackTrace();
         }
     }
 
     /**
-     * GUARDA INFORMACIÓN DE UN ELEMENTO
-     * @param element INFORMACIÓN DEL ELEMENTO
+     * GUARDA INFORMACIÓN DE UNA SERIE
+     * UTILIZO UN MÉTODO DE LA CLASE FILES EL CUAL GUARDA DENTRO DE CADA POSICION DE UNA LISTA EN FORMATO ARRAYLIST CADA LINEA DE UN FICHERO
+     * CADA VEZ QUE GUARDO UN ELEMENTO HAGO UN SALTO DE LÍNEA Y AÑADO UN PUNTO, AUNQUE ESTO QUEDE MUY FEO MÁS TARDE ME RESUELVE MUCHOS PROBLEMAS PARA ELMINIAR ELEMENTOS...
+     * LA PRIMERA VEZ QUE SE GUARDAA UN CONTACTO DETECTA QUE EL FICHERO ESTÁ VACÍO LO UNICO QUE HACE ES AÑADIR UNA NUEVA LINEA A LA LISTA VACÍA
+     * EL RESTO DE VECEES QUE SE GUARDA DETECTA DONDE ESTÁ EL PRIMER PUNTO DISPONIBLE Y LO SOBREESCRIBE
+     * @param serie EL OBJETO QUE VOY A UTILIZAR AUNQUE REALMENTE NO ES NECESARIO CREAR UN USUARIO PARA ESTO
      */
-    public static void saveSerieData(Serie element){
+    public static void saveSerieData(Serie serie){
 
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataPath, true));
+
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-            if (fileContent.size() == 0) {
-                writer.append(Integer.toString(getLastElementNumber()));
-                writer.append('-');
-                writer.append(element.getName());
-                writer.append('-');
-                writer.append(element.getDirector());
-                writer.append('-');
-                writer.append(Integer.toString(element.getDate()));
-                writer.append('-');
-                writer.append(Integer.toString(element.getCopies()));
-                writer.append('-');
-                writer.append(element.getType());
-                writer.append('-');
-                writer.append(Integer.toString(element.getCopies()));
-                writer.append('-');
-                writer.append(Integer.toString(element.getSeasons()));
-                writer.append('-');
-                writer.append('0');
-                writer.append('-');
-                writer.append('0');
-                writer.append('\n');
-                writer.append('.');
-                writer.close();
-                System.out.println("Elemento guardado exitosamente.");
-                return;
-            }
+            String newString = getLastElementNumber() + "-" + serie.getName() + "-" + serie.getDirector() + "-" + serie.getDate() + "-" + serie.getCopies() +
+                    "-" + serie.getType() + "-"+ serie.getCopies() + "-0-0-" + "Disponible" + "-" + serie.getSeasons() + "\n" + ".";
 
-            for (int i = 0; i < fileContent.size(); i++) {
-
-                try {
-                    String[] lineSplitted = fileContent.get(i).split("-");
-                    if (lineSplitted.length <= 1){
-                        String newString =
-                                getLastElementNumber() +
-                                "-" +
-                                element.getName() +
-                                "-" +
-                                element.getDirector() +
-                                "-" +
-                                element.getDate() +
-                                "-" +
-                                element.getCopies() +
-                                "-" +
-                                element.getType() +
-                                "-" +
-                                element.getSeasons() +
-                                "-" +
-                                element.getCopies() +
-                                "-" +
-                                "0" +
-                                "-" +
-                                "0" +
-                                "\n" +
-                                ".";
-                        fileContent.set(i, newString);
+            if (fileContent.isEmpty()){
+                fileContent.add(newString);
+                Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
+            }else{
+                for (int i = 0; i < fileContent.size(); i++){
+                    if (fileContent.get(i).length() <= 2){
+                        fileContent.set(i,newString);
                         Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
                         System.out.println("¡Elemento guardado exitosamente!");
                         return;
                     }
-
-                }catch(NumberFormatException | IOException a) {
-                    a.printStackTrace();
                 }
-
             }
-
         }catch (IOException exc){
             exc.printStackTrace();
         }
     }
 
+    /**
+     * COMPRUEBA SI SE PUEDE DEVOLVER UN ELEMENTO
+     * COMPRUEBA SI LAS COPIAS DISPONIBLES SON IGUALES A LAS TOTALES, SI ES ASÍ NO DEJA DEVOLVER YA QUE TODAS ESTÁN EN LA TIENDA
+     * @param cod CÓDIGO DE PRODUCTO
+     * @return BOOLEAN SI PUEDE DEVOLVER ELEMENTO O NO
+     */
     public static boolean canReturn(int cod){
         try{
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
@@ -247,9 +157,10 @@ public class ElementsDataBase {
 
     /**
      * CONSIGUE EL NÚMERO DEL ÚLTIMO CONTACTO GUARDADO
-     * @return ULTIMO NÚMERO
+     * COMPRUEBA LA ÚLTIMA LINEA CON UN ELEMENTO Y GUARDA EL NÚMERO
+     * @return ULTIMO NÚMERO + 1
      */
-    private static int getLastElementNumber(){
+    public static int getLastElementNumber(){
 
         String lastNum;
         int num = 0;
@@ -277,12 +188,19 @@ public class ElementsDataBase {
         return num + 1;
     }
 
+    /**
+     * RELLENA UN ARRAYLIST CON CADA ELEMENTO DE LA BASE DE DATOS
+     * @return ARRAYLIST CON LOS ELEMENTOS
+     */
     public static ArrayList<String> getElements(){
         elements.clear();
         fillElements();
         return elements;
     }
 
+    /**
+     * RECORRE EL FICHERO Y GUARDA CADA ELEMENTO DENTRO DE UN ARRAYLIST
+     */
     private static void fillElements(){
 
         try {
@@ -300,6 +218,11 @@ public class ElementsDataBase {
         }
     }
 
+    /**
+     * RESTA UNA COPIA DE EL ELEMENTO INTRODUCIDO POR PARÁMETRO
+     * COMPRUEBA SI EL ELEMENTO QUE SE VA A PRESTAR ESTÁ DISPONIBLE Y SI ES ASÍ LO DEVUELVE Y RESTA UNA A LAS COPIAS DISPONIBLES
+     * @param cod CÓDIGO DEL PRODUCTO
+     */
     public static void substract(String cod){
 
         try {
@@ -311,31 +234,16 @@ public class ElementsDataBase {
 
                 if (line.length > 1){
                     if (line[0].equalsIgnoreCase(cod)){
-                        if (Integer.parseInt(line[6]) > 0){
-                            String newLine = "" + line[0] + "-" +
-                                    line[1] +
-                                    "-"     +
-                                    line[2] +
-                                    "-"     +
-                                    line[3] +
-                                    "-"     +
-                                    (Integer.parseInt(line[4]) - 1) +
-                                    "-"     +
-                                    line[5] +
-                                    "-"     +
-                                    line[6] +
-                                    "-" +
-                                    line[7] +
-                                    "-" +
-                                    line[8] +
-                                    "-" +
-                                    line[9];
-                            if (line[9].equalsIgnoreCase("Animación")){
-                                newLine += line[10];
+                        if (isAvailable(cod)){
+                            if (Integer.parseInt(line[6]) > 0){
+                                line[4] = Integer.toString(Integer.parseInt(line[4]) - 1);
+
+                                fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
+                            }else{
+                                System.out.println("El producto no está en stock");
                             }
-                            fileContent.set(i, newLine);
                         }else{
-                            System.out.println("El producto no está en stock");
+                            System.out.println("El producto no está disponible");
                         }
                     }
                 }
@@ -347,6 +255,12 @@ public class ElementsDataBase {
         }
     }
 
+    /**
+     * DEVUELVE UN PRODUCTO QUE HA SIDO USADO POR UN CLIENTE
+     * AL DEVOLVERLO SUMA UNA A LAS COPIAS DISPONIBLES, SUMA UNO A LAS VECES QUE SE HA ALQUILADO ESTE ELEMENTO Y SUMA LA VALORACIÓN A LA VALORACIÓN TOTAL
+     * @param cod CÓDIGO DEL PRODUCTO
+     * @param assessment VALORACIÓN DEL CLIENTE
+     */
     public static void returnElement(String cod, int assessment){
 
         try {
@@ -358,39 +272,25 @@ public class ElementsDataBase {
 
                 if (line.length > 1) {
                     if (line[0].equalsIgnoreCase(cod)) {
-                        String newLine = "" + line[0] + "-" +
-                                line[1] +
-                                "-" +
-                                line[2] +
-                                "-" +
-                                line[3] +
-                                "-" +
-                                (Integer.parseInt(line[4]) + 1) +
-                                "-" +
-                                line[5] +
-                                "-" +
-                                line[6] +
-                                "-" +
-                                (Integer.parseInt(line[7]) + 1) +
-                                "-" +
-                                (Integer.parseInt(line[8]) + assessment) +
-                                "-" +
-                                line[9];
-                        if (line[9].equalsIgnoreCase("Animación")){
-                            newLine += line[10];
-                        }
-                        fileContent.set(i, newLine);
+                        line[4] = Integer.toString(Integer.parseInt(line[4]) + 1);
+                        line[7] = Integer.toString(Integer.parseInt(line[7]) + 1);
+                        line[8] = Integer.toString(Integer.parseInt(line[8]) + assessment);
+
+                        fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
                         System.out.println("Se ha devuelto exitosamente.");
                     }
                 }
             }
             Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
 
-        }catch (IOException ignored){
-
-        }
+        }catch (IOException ignored){}
     }
 
+    /**
+     * DEVUELVE UN ELEMENTO PERO CUANDO HA SIDO MANDADO A REPARAR
+     * HACE LO MISMO QUE EL MÉTODO ANTERIOR A EXCEPCIÓN DE QUE ESTE NO SE LE SUMA NINGUNA VALORACIÓN NI COPIAS TOTALES ALQUILADAS
+     * @param cod CÓDIGO DEL PRODUCTO
+     */
     public static void returnElement(String cod){
 
         try {
@@ -402,28 +302,9 @@ public class ElementsDataBase {
 
                 if (line.length > 1) {
                     if (line[0].equalsIgnoreCase(cod)) {
-                        String newLine = "" + line[0] + "-" +
-                                line[1] +
-                                "-" +
-                                line[2] +
-                                "-" +
-                                line[3] +
-                                "-" +
-                                (Integer.parseInt(line[4]) + 1) +
-                                "-" +
-                                line[5] +
-                                "-" +
-                                line[6] +
-                                "-" +
-                                line[7] +
-                                "-" +
-                                line[8] +
-                                "-" +
-                                line[9];
-                        if (line[9].equalsIgnoreCase("Animación")){
-                            newLine += line[10];
-                        }
-                        fileContent.set(i, newLine);
+                        line[4] = Integer.toString(Integer.parseInt(line[4]) + 1);
+
+                        fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
                     }
                 }
             }
@@ -435,6 +316,39 @@ public class ElementsDataBase {
     }
 
 
+    /**
+     * DEVUELVE VERDADERO SI ES UNA SERIE
+     * @param cod CÓDIGO DEL ELEMENTO
+     * @return SI ES SERIE O PELICULA EN FORMATO BOOLEAN
+     */
+    public static boolean isSerie(String cod){
+        try {
+            reader = new BufferedReader(new FileReader(dataPath));
+            String line = reader.readLine();
+            while (line != null) {
+
+                String[] ultimaString = line.split("-");
+
+                if (ultimaString[0].equals(cod)){
+                    return ultimaString[5].equalsIgnoreCase("Serie");
+                }
+
+                // AVANZA UNA LINEA
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * AÑADE COPIAS A UN ELEMENTO
+     * AÑADE A LAS DISPONIBLES Y A LAS TOTALES
+     * @param cod CÓDIGO DEL ELEMENTO
+     * @param num NUMERO DE COPIAS QUE SE VAN A AÑADIR
+     */
     public static void addCopies(String cod, int num){
 
         try {
@@ -446,28 +360,10 @@ public class ElementsDataBase {
 
                 if (line.length > 1) {
                     if (line[0].equalsIgnoreCase(cod)) {
-                        String newLine = "" + line[0] + "-" +
-                                line[1] +
-                                "-" +
-                                line[2] +
-                                "-" +
-                                line[3] +
-                                "-" +
-                                (Integer.parseInt(line[4]) + num) +
-                                "-" +
-                                line[5] +
-                                "-" +
-                                (Integer.parseInt(line[6]) + num) +
-                                "-" +
-                                line[7] +
-                                "-" +
-                                line[8] +
-                                "-" +
-                                line[9];
-                        if (line[9].equalsIgnoreCase("Animación")){
-                            newLine += line[10];
-                        }
-                        fileContent.set(i, newLine);
+                        line[4] = Integer.toString(Integer.parseInt(line[4]) + num);
+                        line[6] = Integer.toString(Integer.parseInt(line[6]) + num);
+
+                        fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
                         System.out.println("Se han añadido las copias exitosamente.");
                     }
                 }
@@ -479,6 +375,65 @@ public class ElementsDataBase {
         }
     }
 
+    /**
+     * COMPRUEBA SI UN ELEMENTO ESTÁ DISPONIBLE
+     * @param cod CÓDIGO DEL ELEMENTO
+     * @return BOOLEANO TRUE SI ESTÁ DISPONIBLE FALSE SI NO
+     */
+    private static boolean isAvailable(String cod) {
+        try{
+            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
+
+            for (String s : fileContent) {
+                String[] line = s.split("-");
+
+                if (line[0].equalsIgnoreCase(cod)) {
+                    return line[9].equalsIgnoreCase("Disponible");
+                }
+            }
+        }catch (IOException e){
+            System.out.println("No se ha podido cambiar disponibilidad");
+        }
+
+        return false;
+    }
+
+    /**
+     * CAMBIA LA DISPONIBILIDAD
+     * @param cod CODIGO DE ELEMENTO
+     */
+    public static void toggleAvailability(String cod){
+        boolean founded = false;
+        try{
+            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
+
+            for (int i = 0; i < fileContent.size(); i++){
+                String[] line = fileContent.get(i).split("-");
+
+                if (line[0].equalsIgnoreCase(cod)){
+                    founded = true;
+                    if (line[9].equalsIgnoreCase("Disponible")){
+                        line[9] = "No Disponible";
+                        System.out.println(line[1] + " ahora no está disponible.");
+                    }else {
+                        line[9] = "Disponible";
+                        System.out.println(line[1] + " ahora está disponible.");
+
+                    }
+                    fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
+                }
+            }
+
+            if (!founded){
+                System.out.println("No se ha encontrado el usuario.");
+            }
+
+            Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
+
+        }catch (IOException e){
+            System.out.println("No se ha podido cambiar disponibilidad");
+        }
+    }
 
     /**
      * BUSCA UN ELEMENTO MEDIANTE UN ID
@@ -494,8 +449,10 @@ public class ElementsDataBase {
 
                 String[] ultimaString = line.split("-");
 
-                if (ultimaString[0].equals(elementID))
-                    return line;
+                if (ultimaString[0].equals(elementID)){
+                    return ultimaString[0] + "-" + ultimaString[1] + "-" + ultimaString[2] + "-" + ultimaString[3] + "-" + ultimaString[4] + "-" + ultimaString[9] + "-" + ultimaString[5];
+                }
+
 
                 // AVANZA UNA LINEA
                 line = reader.readLine();
@@ -504,28 +461,64 @@ public class ElementsDataBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return "-1";
     }
 
-    public static void removeElement(){
+    /**
+     * DEVUELVE LA VALORACIÓN MEDIA GLOBAL DE UN ELEMENTO
+     * LA FORMULA QUE REALIZA ES (SUMA TOTAL DE VALORACIONES DE CLIENTES / NUMERO DE COPIAS TOTALES ALQUILADAS)
+     * EN EL CASO DE QUE LA DIVISIÓN SEA 0 LA DIVISION DEVUELVE NAN (Not A Number) Y LO CAMBIO POR UN 0.0
+     * @param cod CÓDIGO DEL ELEMENTO
+     * @return VALORACIÓN MEDIA
+     */
+    public static double getValoration(String cod){
 
+        try {
+            reader = new BufferedReader(new FileReader(dataPath));
+            String line = reader.readLine();
+            while (line != null) {
 
-        System.out.println("== ELIMINAR ELEMENTO ==");
-        System.out.print("Introduce el código: ");
-        String elementCode = sc.nextLine();
+                String[] ultimaString = line.split("-");
+
+                if (ultimaString.length > 1){
+                    double assesment = Double.parseDouble(ultimaString[8]) / Double.parseDouble(ultimaString[7]);
+                    if (ultimaString[0].equals(cod)){
+                        if (!Double.isNaN(assesment)){
+                            return assesment;
+                        }
+                    }
+                }
+
+                // AVANZA UNA LINEA
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    /**
+     * ELIMINA UN ELEMENTO DE LA BASE DE DATOS
+     * AQUÍ UTILIZO LOS PUNTOS DEL FICHERO
+     * RECORRO CADA LINEA HASTA QUE ENCUENTRO EL ELEMENTO INDICADO
+     * A PARTIR DE AHÍ CAMBIO EL ELEMENTO DE LA SIGUIENTE LÍNEA POR ESE HASTA QUE TODOS ESTÁN CAMBIADOS
+     * SI NO ESTUVIESE EL . AL FINAL QUEDARÍAN 2 ELEMENTOS DUPLICADOS
+     * @param elementCode CÓDIGO DEL ELEMENTO
+     */
+    public static void removeElement(String elementCode){
+
         try{
-            // GUARDA CADA LINEA EN UN ESPACIO DEL ARRAYLIST
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
 
             boolean founded = false;
-            // RECORRE CADA LÍNEA GUARDADA
             for (int i = 0; i < fileContent.size(); i++) {
 
-                // SEPARA LA LÍNEA EN TROZOS
                 String[] line = fileContent.get(i).split("-");
 
                 if (founded){
+                    SeasonsDataBase.removeElement(elementCode);
                     try {
                         fileContent.set(i - 1, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
 
@@ -534,17 +527,49 @@ public class ElementsDataBase {
                     }
                 }
 
-                // SI EL ID DE LA LINEA COINCIDE CON EL QUE SE HA INTRODUCIDO DEJA LA VARIABLE FOUNDED EN TRUE Y EMPIEZA A AÑADIR A LA CADENA LOS PARAMETROS QUE NO SON NULL
                 if (line[0].equals(elementCode)) {
                     founded = true;
                 }
             }
-            // SE GUARDAN LOS CAMBIOS
+
             Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-            System.out.println("¡Elemento eliminado correctamente!");
-        }catch (Exception e){
+
+        }catch (IOException e){
             System.out.println("ERROR AL ELIMINAR EL ELEMENTO.");
             e.printStackTrace();
         }
     }
+
+    /**
+     * EDITA UN ELEMENTO
+     * SI UNO DE LOS PARAMETROS ES UNA CADENA VACÍA O EN EL CASO DEL AÑO ES UN 0 NO MODIFICA ESE CAMPO
+     * @param cod CÓDIGO DE ELEMENTO
+     * @param name NUEVO NOMBRE PARA EL ELEMENTO
+     * @param director NUEVO DIRECTOR PARA EL ELEMENTO
+     * @param year NUEVO AÑO PARA EL ELEMENTO
+     */
+    public static void editElement(String cod, String name, String director, int year){
+
+            try{
+                List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
+
+                for (int i = 0; i < fileContent.size(); i++){
+
+                    String[] line = fileContent.get(i).split("-");
+
+                    if (line[0].equalsIgnoreCase(cod)){
+                        if (!name.equalsIgnoreCase("")) line[1] = name;
+                        if (!director.equalsIgnoreCase("")) line[2] = director;
+                        if (year != 0) line[3] = Integer.toString(year);
+                        fileContent.set(i, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
+                        Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
+                        System.out.println("Se ha modificado correctamente.");
+                        return;
+                    }
+                }
+            }catch(Exception e){
+                System.out.println("Algo fué mal editando el contacto");
+                e.printStackTrace();
+            }
+        }
 }

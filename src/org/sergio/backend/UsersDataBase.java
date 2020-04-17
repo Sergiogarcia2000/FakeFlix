@@ -7,12 +7,15 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * @author SERGIO GARCÍA MAYO
+ * ESTA CLASE REALIZA PRÁCTICAMENTE LOS MISMOS ALGORITMOS QUE LAS OTRAS CLASES QUE GESTIONAN LOS DATOS
+ */
 public class UsersDataBase {
 
     // ENCONTRAR RUTA DEL DIRECTORIO DOCUMENTOS DEL USUARIO
@@ -38,6 +41,8 @@ public class UsersDataBase {
 
 
     /**
+     * COMPRUEBA SI EXISTE EL DIRECTORIO PARA GUARDAR LOS DATOS
+     * SI NO EXISTE LO CREA
      * INTENTA CREAR UN FICHERO PARA GUARDAR DATOS
      * SI EL FICHERO YA EXISTE NO LO CREA
      */
@@ -73,6 +78,10 @@ public class UsersDataBase {
 
     /**
      * GUARDA INFORMACIÓN DE UN USUARIO
+     * UTILIZO UN MÉTODO DE LA CLASE FILES EL CUAL GUARDA DENTRO DE CADA POSICION DE UNA LISTA EN FORMATO ARRAYLIST CADA LINEA DE UN FICHERO
+     * CADA VEZ QUE GUARDO UN ELEMENTO HAGO UN SALTO DE LÍNEA Y AÑADO UN PUNTO, AUNQUE ESTO QUEDE MUY FEO MÁS TARDE ME RESUELVE MUCHOS PROBLEMAS PARA ELMINIAR USUARIOS...
+     * LA PRIMERA VEZ QUE SE GUARDAA UN CONTACTO DETECTA QUE EL FICHERO ESTÁ VACÍO LO UNICO QUE HACE ES AÑADIR UNA NUEVA LINEA A LA LISTA VACÍA
+     * EL RESTO DE VECES QUE SE GUARDA DETECTA DONDE ESTÁ EL PRIMER PUNTO DISPONIBLE Y LO SOBREESCRIBE
      * @param user INFORMACIÓN DEL USUARIO
      */
     public static void saveContactData(User user) {
@@ -83,47 +92,23 @@ public class UsersDataBase {
         }
 
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(dataPath, true));
+
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-            if (fileContent.size() == 0){
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(getLastContactNumber())
-                        .append('-').append(user.getName())
-                        .append('-')
-                        .append(user.getPassword())
-                        .append('-')
-                        .append(user.getBoss())
-                        .append('\n')
-                        .append(".");
-                bw.append(stringBuilder);
-                bw.close();
-                return;
-            }
+            String newString = getLastContactNumber() + "-" + user.getName() + "-" + user.getPassword() + "-" + user.getBoss() + "\n" + ".";
 
-            for (int i = 0; i < fileContent.size(); i++) {
-
-                try {
-                    String[] lineSplitted = fileContent.get(i).split("-");
-                    if (Integer.parseInt(lineSplitted[0]) == getLastContactNumber() - 1) {
-                        String stringBuilder = String.valueOf(getLastContactNumber()) +
-                                '-' +
-                                user.getName() +
-                                '-' +
-                                user.getPassword() +
-                                '-' +
-                                user.getBoss() +
-                                '\n' +
-                                ".";
-                        fileContent.set(i + 1, stringBuilder);
+            if (fileContent.isEmpty()){
+                fileContent.add(newString);
+                Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
+            }else{
+                for (int i = 0; i < fileContent.size(); i++){
+                    if (fileContent.get(i).length() <= 2){
+                        fileContent.set(i,newString);
                         Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-                        System.out.println("¡Usuario registrado exitosamente!");
+                        System.out.println("¡Usuario guardado exitosamente!");
                         return;
                     }
-                }catch(NumberFormatException | IOException a) {
-                        a.printStackTrace();
-                    }
-
                 }
+            }
         } catch (Exception asd) {
             asd.printStackTrace();
         }
@@ -131,7 +116,7 @@ public class UsersDataBase {
 
     /**
      * CONSIGUE EL NÚMERO DEL ÚLTIMO CONTACTO GUARDADO
-     * @return ULTIMO NÚMERO
+     * @return ULTIMO NÚMERO + 1
      */
     public static int getLastContactNumber(){
 
@@ -161,12 +146,18 @@ public class UsersDataBase {
         return num + 1;
     }
 
+    /**
+     * @return UN ARRAYLIST CON LA INFORMACIÓN DE CADA USUARIO
+     */
     public static ArrayList<String> getNames(){
         userNames.clear();
         fillContactsName();
         return userNames;
     }
 
+    /**
+     * RELLENA UN ARRAYLIST CON LA INFORMACIÓN DE CADA USUARIO
+     */
     private static void fillContactsName(){
         try {
             reader = new BufferedReader(new FileReader(dataPath));
@@ -223,7 +214,7 @@ public class UsersDataBase {
 
     /**
      * EDITA UN CONTACTO DE LA BASE DE DATOS
-     *
+     * SI UN CAMPO SE DEJA VACÍO NO SE MODIFICA
      */
     public static void editContact(){
 
@@ -287,6 +278,14 @@ public class UsersDataBase {
         }
     }
 
+    /**
+     * ELIMINA UN USUARIO DE LA BASE DE DATOS
+     * AQUÍ UTILIZO LOS PUNTOS DEL FICHERO
+     * RECORRO CADA LINEA HASTA QUE ENCUENTRO EL USUARIO INDICADO
+     * A PARTIR DE AHÍ CAMBIO EL USUARIO DE LA SIGUIENTE LÍNEA POR ESE HASTA QUE TODOS ESTÁN CAMBIADOS
+     * SI NO ESTUVIESE EL . AL FINAL QUEDARÍAN 2 ELEMENTOS DUPLICADOS
+     * SI EL USUARIO ES UN ADMINISTRADOR SALTA UN AVISO DE QUE NO SE PUEDE ELIMINAR Y NO SE ELIMINA
+     */
     public static void removeUser(){
 
         System.out.println("== ELIMINAR USUARIO ==");
@@ -295,19 +294,16 @@ public class UsersDataBase {
         String userId = searchUserId(userName);
         if (!userId.equals("-1")){
             try{
-                // GUARDA CADA LINEA EN UN ESPACIO DEL ARRAYLIST
                 List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
 
                 boolean founded = false;
-                // RECORRE CADA LÍNEA GUARDADA
+
                 for (int i = 0; i < fileContent.size(); i++) {
 
-                    // SEPARA LA LÍNEA EN TROZOS
                     String[] line = fileContent.get(i).split("-");
 
                     if (founded){
                         try {
-
                             line[0] = Integer.toString(Integer.parseInt(line[0]) - 1);
                             fileContent.set(i - 1, Arrays.toString(line).replace("[", "").replace("]","").replace(",","-").replace("- ", "-"));
 
@@ -316,7 +312,6 @@ public class UsersDataBase {
                         }
                     }
 
-                    // SI EL ID DE LA LINEA COINCIDE CON EL QUE SE HA INTRODUCIDO DEJA LA VARIABLE FOUNDED EN TRUE Y EMPIEZA A AÑADIR A LA CADENA LOS PARAMETROS QUE NO SON NULL
                     if (line[0].equals(userId)) {
                         if (line.length > 1){
                             if (line[3].equalsIgnoreCase("true")){
@@ -327,7 +322,6 @@ public class UsersDataBase {
                         }
                     }
                 }
-                // SE GUARDAN LOS CAMBIOS
                 Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
                 System.out.println("¡Usuario eliminado correctamente!");
             }catch (Exception e){

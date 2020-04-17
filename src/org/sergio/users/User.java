@@ -1,11 +1,6 @@
 package org.sergio.users;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class User {
-
-    protected static List<User> users = new ArrayList<>();
 
     protected String name;
     protected String password;

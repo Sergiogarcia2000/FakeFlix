@@ -32,7 +32,6 @@ public class Element {
         return date;
     }
 
-
     public int getCopies(){
         return copies;
     }

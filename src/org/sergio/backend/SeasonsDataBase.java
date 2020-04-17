@@ -1,7 +1,5 @@
 package org.sergio.backend;
 
-import org.sergio.elements.Movie;
-import org.sergio.elements.Serie;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.*;
@@ -13,6 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * @author SERGIO GARCÍA MAYO
+ * ESTA CLASE REALIZA PRÁCTICAMENTE LOS MISMOS ALGORITMOS QUE LAS OTRAS CLASES QUE GESTIONAN LOS DATOS
+ */
 public class SeasonsDataBase {
 
     // ENCONTRAR RUTA DEL DIRECTORIO DOCUMENTOS DEL USUARIO
@@ -28,8 +30,6 @@ public class SeasonsDataBase {
     private static ArrayList<String> elements = new ArrayList<>();
 
     private static Scanner sc = new Scanner(System.in);
-
-    private static BufferedReader reader;
 
     /**
      * INTENTA CREAR UN FICHERO PARA GUARDAR DATOS
@@ -50,409 +50,61 @@ public class SeasonsDataBase {
     }
 
     /**
-     * GUARDA INFORMACIÓN DE UN ELEMENTO
+     * GUARDA INFORMACIÓN DE UNA TEMPORADA
+     * UTILIZO UN MÉTODO DE LA CLASE FILES EL CUAL GUARDA DENTRO DE CADA POSICION DE UNA LISTA EN FORMATO ARRAYLIST CADA LINEA DE UN FICHERO
+     * CADA VEZ QUE GUARDO UN ELEMENTO HAGO UN SALTO DE LÍNEA Y AÑADO UN PUNTO, AUNQUE ESTO QUEDE MUY FEO MÁS TARDE ME RESUELVE MUCHOS PROBLEMAS PARA ELMINIAR TEMPORADAS...
+     * LA PRIMERA VEZ QUE SE GUARDAA UN CONTACTO DETECTA QUE EL FICHERO ESTÁ VACÍO LO UNICO QUE HACE ES AÑADIR UNA NUEVA LINEA A LA LISTA VACÍA
+     *  EL RESTO DE VECES QUE SE GUARDA DETECTA DONDE ESTÁ EL PRIMER PUNTO DISPONIBLE Y LO SOBREESCRIBE
+     * @param name NOMBRE DE LA SERIA
+     * @param chapters CAPITULOS
      */
-    public static void saveMovieData(Movie movie){
-
-        String category = "";
-        String subcategory = "";
-
-        if (movie.getCategory() == 1){
-            category = "Ciencia ficción";
-        }else if (movie.getCategory() == 2){
-            category = "Animación";
-            if (movie.getSubcategory() == 1){
-                subcategory = "Animación tradicional";
-            }else if (movie.getSubcategory() == 2){
-                subcategory = "Stop Motion";
-            }else if (movie.getSubcategory() == 3){
-                subcategory = "Animación computarizada";
-            }
-        }
-
+    public static void saveSeason(String name, int chapters){
 
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataPath, true));
+
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-            if (fileContent.size() == 0) {
-                writer.append(Integer.toString(getLastElementNumber()));
-                writer.append('-');
-                writer.append(movie.getName());
-                writer.append('-');
-                writer.append(movie.getDirector());
-                writer.append('-');
-                writer.append(Integer.toString(movie.getDate()));
-                writer.append('-');
-                writer.append(Integer.toString(movie.getCopies()));
-                writer.append('-');
-                writer.append(movie.getType());
-                writer.append('-');
-                writer.append(Integer.toString(movie.getCopies()));
-                writer.append('-');
-                writer.append('0');
-                writer.append('-');
-                writer.append('0');
-                writer.append('-');
-                writer.append(category);
-                writer.append('-');
-                writer.append(subcategory);
-                writer.append('\n');
-                writer.append('.');
-                writer.close();
-                System.out.println("Elemento guardado exitosamente.");
-                return;
-            }
+            String newSeason = ElementsDataBase.getLastElementNumber() + "-" + name + "-" + chapters + "\n" + ".";
 
-            for (int i = 0; i < fileContent.size(); i++) {
-
-                try {
-                    String[] lineSplitted = fileContent.get(i).split("-");
-                    if (lineSplitted.length <= 1){
-                        String newString =
-                                getLastElementNumber() +
-                                        "-" +
-                                        movie.getName() +
-                                        "-" +
-                                        movie.getDirector() +
-                                        "-" +
-                                        movie.getDate() +
-                                        "-" +
-                                        movie.getCopies() +
-                                        "-" +
-                                        movie.getType() +
-                                        "-"+
-                                        category +
-                                        "-" +
-                                        subcategory +
-                                        "\n" +
-                                        ".";
-                        fileContent.set(i, newString);
+            if (fileContent.isEmpty()){
+                fileContent.add(newSeason);
+                Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
+            }else{
+                for (int i = 0; i < fileContent.size(); i++){
+                    if (fileContent.get(i).length() <= 2){
+                        fileContent.set(i,newSeason);
                         Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-                        System.out.println("¡Elemento guardado exitosamente!");
                         return;
                     }
-
-                }catch(NumberFormatException | IOException a) {
-                    a.printStackTrace();
                 }
-
             }
 
-        }catch (IOException exc){
-            exc.printStackTrace();
+        }catch(NumberFormatException | IOException a) {
+                a.printStackTrace();
         }
+
     }
 
     /**
-     * GUARDA INFORMACIÓN DE UN ELEMENTO
-     * @param element INFORMACIÓN DEL ELEMENTO
-     */
-    public static void saveSerieData(Serie element){
-
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataPath, true));
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-            if (fileContent.size() == 0) {
-                writer.append(Integer.toString(getLastElementNumber()));
-                writer.append('-');
-                writer.append(element.getName());
-                writer.append('-');
-                writer.append(element.getDirector());
-                writer.append('-');
-                writer.append(Integer.toString(element.getDate()));
-                writer.append('-');
-                writer.append(Integer.toString(element.getCopies()));
-                writer.append('-');
-                writer.append(element.getType());
-                writer.append('-');
-                writer.append(Integer.toString(element.getSeasons()));
-                writer.append('-');
-                writer.append(Integer.toString(element.getCopies()));
-                writer.append('\n');
-                writer.append('.');
-                writer.close();
-                System.out.println("Elemento guardado exitosamente.");
-                return;
-            }
-
-            for (int i = 0; i < fileContent.size(); i++) {
-
-                try {
-                    String[] lineSplitted = fileContent.get(i).split("-");
-                    if (lineSplitted.length <= 1){
-                        String newString =
-                                getLastElementNumber() +
-                                        "-" +
-                                        element.getName() +
-                                        "-" +
-                                        element.getDirector() +
-                                        "-" +
-                                        element.getDate() +
-                                        "-" +
-                                        element.getCopies() +
-                                        "-" +
-                                        element.getType() +
-                                        "-" +
-                                        element.getSeasons() +
-                                        "-" +
-                                        element.getCopies() +
-                                        "\n" +
-                                        ".";
-                        fileContent.set(i, newString);
-                        Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-                        System.out.println("¡Elemento guardado exitosamente!");
-                        return;
-                    }
-
-                }catch(NumberFormatException | IOException a) {
-                    a.printStackTrace();
-                }
-
-            }
-
-        }catch (IOException exc){
-            exc.printStackTrace();
-        }
-    }
-
-    public static boolean canReturn(int cod){
-        try{
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-
-            for (String s : fileContent){
-                String[] line = s.split("-");
-                if (Integer.parseInt(line[0]) == cod){
-                    return Integer.parseInt(line[5]) != Integer.parseInt(line[7]);
-                }
-            }
-        }catch (IOException e){
-            System.out.println("Algo salió mal.");
-        }
-        return false;
-    }
-
-    /**
-     * CONSIGUE EL NÚMERO DEL ÚLTIMO CONTACTO GUARDADO
-     * @return ULTIMO NÚMERO
-     */
-    private static int getLastElementNumber(){
-
-        String lastNum;
-        int num = 0;
-
-        try {
-
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-            for (int i = 0; i < fileContent.size(); i++){
-
-                try {
-                    String[] lineSplitted = fileContent.get(i).split("-");
-
-                    if (fileContent.size() > 1 && lineSplitted[0] != null){
-                        lastNum = lineSplitted[0];
-                        num = Integer.parseInt(lastNum);
-                    }
-                }catch (Exception ignored){
-
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return num + 1;
-    }
-
-    public static ArrayList<String> getElements(){
-        elements.clear();
-        fillElements();
-        return elements;
-    }
-
-    private static void fillElements(){
-
-        try {
-            reader = new BufferedReader(new FileReader(dataPath));
-            String line = reader.readLine();
-            while (line != null) {
-
-                elements.add(line);
-                // AVANZA UNA LINEA
-                line = reader.readLine();
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void substract(String cod){
-
-        try {
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-
-            for (int i = 0; i < fileContent.size(); i++){
-
-                String[] line = fileContent.get(i).split("-");
-
-                if (line.length > 1){
-                    if (line[0].equalsIgnoreCase(cod)){
-                        if (Integer.parseInt(line[5]) > 0){
-                            String newLine = "" + line[0] + "-" +
-                                    line[1] +
-                                    "-"     +
-                                    line[2] +
-                                    "-"     +
-                                    line[3] +
-                                    "-"     +
-                                    line[4] +
-                                    "-"     +
-                                    (Integer.parseInt(line[5]) - 1) +
-                                    "-"     +
-                                    line[6] +
-                                    "-"     +
-                                    line[7];
-                            fileContent.set(i, newLine);
-                        }else{
-                            System.out.println("El producto no está en stock");
-                        }
-                    }
-                }
-            }
-            Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-
-        }catch (IOException ignored){
-
-        }
-    }
-
-    public static void returnElement(String cod, int assessment){
-
-        try {
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-
-            for (int i = 0; i < fileContent.size(); i++){
-
-                String[] line = fileContent.get(i).split("-");
-
-                if (line.length > 1) {
-                    if (line[0].equalsIgnoreCase(cod)) {
-                        String newLine = "" + line[0] + "-" +
-                                line[1] +
-                                "-" +
-                                line[2] +
-                                "-" +
-                                line[3] +
-                                "-" +
-                                ((Double.parseDouble(line[4]) + assessment) / 2) +
-                                "-" +
-                                (Integer.parseInt(line[5]) + 1) +
-                                "-" +
-                                line[6] +
-                                "-" +
-                                line[7];
-                        fileContent.set(i, newLine);
-                        System.out.println("Se ha devuelto exitosamente.");
-                    }
-                }
-            }
-            Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-
-        }catch (IOException ignored){
-
-        }
-    }
-
-    public static void returnElement(String cod){
-
-        try {
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-
-            for (int i = 0; i < fileContent.size(); i++){
-
-                String[] line = fileContent.get(i).split("-");
-
-                if (line.length > 1) {
-                    if (line[0].equalsIgnoreCase(cod)) {
-                        String newLine = "" + line[0] + "-" +
-                                line[1] +
-                                "-" +
-                                line[2] +
-                                "-" +
-                                line[3] +
-                                "-" +
-                                line[4] +
-                                "-" +
-                                (Integer.parseInt(line[5]) + 1) +
-                                "-" +
-                                line[6] +
-                                "-" +
-                                line[7];
-                        fileContent.set(i, newLine);
-                    }
-                }
-            }
-            Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-
-        }catch (IOException ignored){
-
-        }
-    }
-
-
-    public static void addCopies(String cod, int num){
-
-        try {
-            List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
-
-            for (int i = 0; i < fileContent.size(); i++){
-
-                String[] line = fileContent.get(i).split("-");
-
-                if (line.length > 1) {
-                    if (line[0].equalsIgnoreCase(cod)) {
-                        String newLine = "" + line[0] + "-" +
-                                line[1] +
-                                "-" +
-                                line[2] +
-                                "-" +
-                                line[3] +
-                                "-" +
-                                line[4] +
-                                "-" +
-                                (Integer.parseInt(line[5]) + num) +
-                                "-" +
-                                line[6];
-                        fileContent.set(i, newLine);
-                        System.out.println("Se han añadido las copias exitosamente.");
-                    }
-                }
-            }
-            Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-
-        }catch (IOException e){
-            System.out.println("Ha habido algun problema al añadir las copias.");
-        }
-    }
-
-
-    /**
-     * BUSCA UN ELEMENTO MEDIANTE UN ID
+     * BUSCA UNA MEDIANTE EL CÓDIGO DE LA SERIE A LA QUE PERTENECE
      * @param elementID ID DEL ELEMENTO QUE SE QUIERE BUSCAR
      * @return LA INFORMACIÓN DEL ELEMENTO
      */
-    public static String searchElement(String elementID){
+    public static List<String> getSeasons(String elementID){
+
+        List<String> seasons = new ArrayList<>();
 
         try {
-            reader = new BufferedReader(new FileReader(dataPath));
+            BufferedReader reader = new BufferedReader(new FileReader(dataPath));
             String line = reader.readLine();
             while (line != null) {
 
                 String[] ultimaString = line.split("-");
 
-                if (ultimaString[0].equals(elementID))
-                    return line;
-
+                if (ultimaString.length > 1){
+                    if (ultimaString[0].equals(elementID)){
+                        seasons.add(ultimaString[0] + "-" + ultimaString[1] + "-" + ultimaString[2]);
+                    }
+                }
                 // AVANZA UNA LINEA
                 line = reader.readLine();
             }
@@ -461,15 +113,16 @@ public class SeasonsDataBase {
             e.printStackTrace();
         }
 
-        return "-1";
+        return seasons;
     }
 
-    public static void removeElement(){
+    /**
+     * ELIMINA LAS TEMPORADAS INDICANDO EL CÓDIGO QUE SE QUIERE ELIMINAR
+     * EL MÉTODO SE LLAMA RECURSIVAMENTE HASTA QUE NO ENCUENTRA MAS COINCIDENCIAS DE EL CÓDIGO INTRODUCIDO
+     * @param cod CÓDIGO DE LA SERIE A LA QUE PERTENECEN LAS TEMPORADAS
+     */
+    public static void removeElement(String cod){
 
-
-        System.out.println("== ELIMINAR ELEMENTO ==");
-        System.out.print("Introduce el código: ");
-        String elementCode = sc.nextLine();
         try{
             // GUARDA CADA LINEA EN UN ESPACIO DEL ARRAYLIST
             List<String> fileContent = new ArrayList<>(Files.readAllLines(Paths.get(dataPath), StandardCharsets.UTF_8));
@@ -490,17 +143,19 @@ public class SeasonsDataBase {
                     }
                 }
 
-                // SI EL ID DE LA LINEA COINCIDE CON EL QUE SE HA INTRODUCIDO DEJA LA VARIABLE FOUNDED EN TRUE Y EMPIEZA A AÑADIR A LA CADENA LOS PARAMETROS QUE NO SON NULL
-                if (line[0].equals(elementCode)) {
+                if (line[0].equals(cod)) {
                     founded = true;
                 }
             }
             // SE GUARDAN LOS CAMBIOS
             Files.write(Paths.get(dataPath), fileContent, StandardCharsets.UTF_8);
-            System.out.println("¡Elemento eliminado correctamente!");
-        }catch (Exception e){
-            System.out.println("ERROR AL ELIMINAR EL ELEMENTO.");
+
+            if (founded){
+                removeElement(cod);
+            }
+        }catch (IOException e){
             e.printStackTrace();
         }
     }
+
 }
